@@ -1,4 +1,3 @@
-// ============================================================================
 #[derive(Copy, Clone)]
 pub struct Conserved(pub f64, pub f64, pub f64);
 
@@ -7,6 +6,23 @@ pub struct Primitive(pub f64, pub f64, pub f64);
 
 #[derive(Copy, Clone)]
 pub enum Direction { X, Y }
+
+
+
+
+// ============================================================================
+impl Direction
+{
+    fn dot(self, other: Direction) -> f64
+    {
+        match (self, other)
+        {
+            (Direction::X, Direction::X) => 1.0,
+            (Direction::Y, Direction::Y) => 1.0,
+            _ => 0.0,
+        }
+    }
+}
 
 
 
@@ -30,23 +46,17 @@ impl std::ops::Div<f64> for Conserved { type Output = Conserved; fn div(self, a:
 
 
 // ============================================================================
-impl Into<[f64; 3]> for Primitive {
-    fn into(self) -> [f64; 3] {
-        [self.0, self.1, self.2]
-    }    
-}
-
-impl From<[f64; 3]> for Primitive {
-    fn from(a:  [f64; 3]) -> Primitive {
-        Primitive(a[0], a[1], a[2])    
-    }
-}
+impl Into<[f64; 3]> for Primitive { fn into(self) -> [f64; 3] { [self.0, self.1, self.2] } }
+impl Into<[f64; 3]> for Conserved { fn into(self) -> [f64; 3] { [self.0, self.1, self.2] } }
+impl From<[f64; 3]> for Primitive { fn from(a:  [f64; 3]) -> Primitive { Primitive(a[0], a[1], a[2]) } }
+impl From<[f64; 3]> for Conserved { fn from(a:  [f64; 3]) -> Conserved { Conserved(a[0], a[1], a[2]) } }
 
 
 
 
 // ============================================================================
-impl Conserved {
+impl Conserved
+{
     pub fn density        (self)  -> f64 { self.0 }
     pub fn momentum_x     (self)  -> f64 { self.1 }
     pub fn momentum_y     (self)  -> f64 { self.2 }
@@ -62,7 +72,8 @@ impl Conserved {
 
 
 // ============================================================================
-impl Primitive {
+impl Primitive
+{
     pub fn density   (self) -> f64 { self.0 }
     pub fn velocity_x(self) -> f64 { self.1 }
     pub fn velocity_y(self) -> f64 { self.2 }
@@ -109,7 +120,7 @@ impl Primitive {
         let pg = self.pressure(sound_speed_squared);
         let vn = self.velocity(direction);
         let advective_term = self.to_conserved() * vn;
-        let pressure_term = Conserved(0.0, pg, pg * vn);
+        let pressure_term = Conserved(0.0, pg * direction.dot(Direction::X), pg * direction.dot(Direction::Y));
         advective_term + pressure_term
     }
 }
