@@ -145,3 +145,19 @@ pub fn riemann_hlle(pl: Primitive, pr: Primitive, direction: Direction, sound_sp
 
     (fl * ap - fr * am - (ul - ur) * ap * am) / (ap - am)
 }
+
+pub fn riemann_hlle_plus_state(pl: Primitive, pr: Primitive, direction: Direction, sound_speed_squared: f64) -> (Conserved, Conserved) {
+    let ul = pl.to_conserved();
+    let ur = pr.to_conserved();
+    let fl = pl.flux_vector(direction, sound_speed_squared);
+    let fr = pr.flux_vector(direction, sound_speed_squared);
+
+    let (alm, alp) = pl.outer_wavespeeds(direction, sound_speed_squared);
+    let (arm, arp) = pr.outer_wavespeeds(direction, sound_speed_squared);
+    let ap = alp.max(arp).max(0.0);
+    let am = alm.min(arm).min(0.0);
+
+    let star = (ur * ap - ul * am + fl - fr) / (ap - am);
+    let flux = (fl * ap - fr * am - (ul - ur) * ap * am) / (ap - am);
+    (flux, star)
+}
