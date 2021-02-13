@@ -61,12 +61,11 @@ impl From<[f64; 3]> for Conserved { fn from(a: [f64; 3]) -> Conserved { Conserve
 
 
 // ============================================================================
-impl Conserved
-{
-    pub fn density        (self)  -> f64 { self.0 }
-    pub fn momentum_x     (self)  -> f64 { self.1 }
-    pub fn momentum_y     (self)  -> f64 { self.2 }
-    pub fn to_primitive   (self)  -> Primitive {
+impl Conserved {
+    pub fn density(self) -> f64 { self.0 }
+    pub fn momentum_x(self) -> f64 { self.1 }
+    pub fn momentum_y(self) -> f64 { self.2 }
+    pub fn to_primitive(self) -> Primitive {
         Primitive(
             self.density(),
             self.momentum_x() / self.density(),
@@ -80,49 +79,42 @@ impl Conserved
 // ============================================================================
 impl Primitive
 {
-    pub fn density   (self) -> f64 { self.0 }
+    pub fn density(self) -> f64 { self.0 }
     pub fn velocity_x(self) -> f64 { self.1 }
     pub fn velocity_y(self) -> f64 { self.2 }
-    pub fn velocity  (self, direction: Direction) -> f64
-    {
+    pub fn velocity(self, direction: Direction) -> f64 {
     	match direction {
     		Direction::X => self.velocity_x(),
     		Direction::Y => self.velocity_y(),
     	}
     }
 
-    pub fn momentum_x(self) -> f64
-    {
+    pub fn momentum_x(self) -> f64 {
         self.density() * self.velocity_x()
     }
 
-    pub fn momentum_y(self) -> f64
-    {
+    pub fn momentum_y(self) -> f64 {
         self.density() * self.velocity_y()
     }
 
-    pub fn pressure(self, sound_speed_squared: f64) -> f64
-    {
+    pub fn pressure(self, sound_speed_squared: f64) -> f64 {
         self.density() * sound_speed_squared
     }
 
-    pub fn to_conserved(self) -> Conserved
-    {
+    pub fn to_conserved(self) -> Conserved {
         Conserved(
             self.density(),
             self.momentum_x(),
             self.momentum_y())
     }
 
-    pub fn outer_wavespeeds(self, direction: Direction, sound_speed_squared: f64) -> (f64, f64)
-    {
+    pub fn outer_wavespeeds(self, direction: Direction, sound_speed_squared: f64) -> (f64, f64) {
         let cs = sound_speed_squared.sqrt();
         let vn = self.velocity(direction);
         (vn - cs, vn + cs)
     }
 
-    pub fn flux_vector(self, direction: Direction, sound_speed_squared: f64) -> Conserved
-    {
+    pub fn flux_vector(self, direction: Direction, sound_speed_squared: f64) -> Conserved {
         use Direction::*;
         let pg = self.pressure(sound_speed_squared);
         let vn = self.velocity(direction);
